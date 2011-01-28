@@ -8,14 +8,7 @@
 
 #import "CalculatorViewController.h"
 
-//8
-@interface CalculatorViewController()
-@property (readonly) CalculatorBrain *brain;
-@end
-
 @implementation CalculatorViewController
-
-//9
 - (CalculatorBrain *)brain
 {
 	if (!brain) brain = [[CalculatorBrain alloc] init];
@@ -24,10 +17,9 @@
 
 -(IBAction)digitPressed:(UIButton *)sender
 {
-	//5 NSString *digit = [[sender titleLabel] text];
 	NSString *digit = sender.titleLabel.text;
-	NSString *num = display.text;
 	
+	NSString *num = display.text;
 	NSRange range = [num rangeOfString:@"."];
 	if ([digit isEqual:@"."]) {
 		if (range.location == NSNotFound)
@@ -37,10 +29,8 @@
 	}
 	
 	if (userIsInTheMiddleOfTypingANumber) {
-		//6 [display setText:[[display text] stringByAppendingString:digit]];
 		display.text = [display.text stringByAppendingString:digit];
 	} else {
-		//7 [display setText:digit];
 		display.text = digit;
 		userIsInTheMiddleOfTypingANumber = YES;
 	}
@@ -50,14 +40,44 @@
 -(IBAction)operationPressed:(UIButton *)sender
 {
 	if (userIsInTheMiddleOfTypingANumber){
-		//1. [[self brain] setOperand:[[display text] doubleValue]];
-		self.brain.operand = display.text.doubleValue;
+		self.brain.operand = [display.text doubleValue];
 		userIsInTheMiddleOfTypingANumber = NO;
 	}
-	NSString *operation = [[sender titleLabel] text];
-	//10 double result = [[self brain] performOperation:operation];
-	[self.brain performOperation:operation];
-	display.text = [NSString stringWithFormat:@"%g", self.brain.operand];
+	NSString *operation = sender.titleLabel.text;
+	
+	if ([@"solve" isEqual:operation]) {
+		NSDictionary *variables = [NSDictionary dictionaryWithObjectsAndKeys:
+								   [NSNumber numberWithInt: 1],@"x",
+								   [NSNumber numberWithInt: 10],@"a",
+								   [NSNumber numberWithInt: 100],@"b",
+								   [NSNumber numberWithInt: 1000],@"c",nil];
+		display.text = [NSString stringWithFormat:@"%g",
+						[CalculatorBrain evaluateExpression:self.brain.expression
+										usingVariableValues:variables]];
+	}else{
+		[self.brain performOperation:operation];
+		if([CalculatorBrain variablesInExpression:self.brain.expression])
+			display.text = [CalculatorBrain descriptionOfExpression:self.brain.expression];
+		else
+			display.text = [NSString stringWithFormat:@"%g", self.brain.operand];
+	}
 }
 
+-(IBAction)setVariableAsOperand:(UIButton *)sender
+{
+	if (userIsInTheMiddleOfTypingANumber){
+		self.brain.operand = [display.text doubleValue];
+		userIsInTheMiddleOfTypingANumber = NO;
+	}
+	NSString *variable = sender.titleLabel.text;
+	[self.brain setVariableAsOperand:variable]; 
+	NSLog(@"Got %d items", [self.brain.expression count]);
+	display.text = [CalculatorBrain descriptionOfExpression:self.brain.expression];
+}
+
+-(void)dealloc
+{
+	[brain release];
+	[super dealloc];
+}
 @end

@@ -8,17 +8,27 @@
 
 #import <Foundation/Foundation.h>
 
-
 @interface CalculatorBrain : NSObject {
-//2
 @private
-	double operand;
-	NSString *waitingOperation;
 	double waitingOperand;
 	double memory;
+	NSMutableArray *internalExpression;
 }
-//3
-@property double operand;
+
+- (void)setVariableAsOperand:(NSString *)variableName;
 - (double)performOperation:(NSString *)operation;
+
+@property double operand;
+@property (retain) NSString *waitingOperation;
+@property (readonly) id expression;
+
++ (double)evaluateExpression:(id)anExpression
+		 usingVariableValues:(NSDictionary *)variables;
+
++ (NSSet *)variablesInExpression:(id)anExpression;
++ (NSString *)descriptionOfExpression:(id)anExpression;
+
++ (id)propertyListForExpression:(id)anExpression;
++ (id)expressionForPropertyList:(id)propertyList;
 
 @end
