@@ -10,10 +10,8 @@
 
 
 @implementation CalculatorBrain
-- (void)setOperand:(double)aDouble
-{
-	operand = aDouble;
-}
+//4
+@synthesize operand;
 
 - (void)performWaitingOperation
 {
